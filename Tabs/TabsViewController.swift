@@ -42,7 +42,7 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
     private var displayedControllers: [UIViewController] = []
     private(set) var selectedController: UIViewController?
     
-    public init(delegate: Delegate, emptyDataPlaceholder: UIView?) {
+    public init(delegate: Delegate, emptyDataPlaceholder: UIView? = nil) {
         self.delegate = delegate
         self.emptyDataPlaceholder = emptyDataPlaceholder
         super.init(nibName: nil, bundle: nil)
