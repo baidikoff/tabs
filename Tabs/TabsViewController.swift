@@ -21,11 +21,20 @@ public protocol TabsViewDelegate: class {
 }
 
 public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsViewDelegate>: UIViewController
-    where CellType.Tab == TabType, Delegate.TabType == TabType {
-    public weak var delegate: Delegate?
-
+    where CellType.Tab == TabType, Delegate.TabType == TabType
+{
+    private weak var delegate: Delegate?
+    public var emptyDataPlaceholder: UIView? {
+        willSet {
+            self.removeEmptyPlaceholder()
+        }
+        didSet {
+            self.setupEmptyPlaceholder()
+        }
+    }
+    
     private let buttonView = TabsButtonView<TabType, TabsViewController, CellType>()
-    private lazy var scrollView: UIScrollView = {
+    private lazy var controllersView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.isScrollEnabled = false
         scrollView.showsHorizontalScrollIndicator = false
@@ -35,7 +44,17 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
     private var appearance: TabsAppearance = TabsAppearance()
     private var displayedControllers: [UIViewController] = []
     private(set) var selectedController: UIViewController?
-
+    
+    public init(delegate: Delegate, emptyDataPlaceholder: UIView?) {
+        self.delegate = delegate
+        self.emptyDataPlaceholder = emptyDataPlaceholder
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         self.layoutControllers()
@@ -51,6 +70,10 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
     public func reload(tabs: [TabType], controllers: [UIViewController]) {
         self.cleanup()
 
+        self.emptyDataPlaceholder?.isHidden = tabs.isEmpty
+        self.buttonView.isHidden = !tabs.isEmpty
+        self.controllersView.isHidden = !tabs.isEmpty
+        
         self.buttonView.reload(newItems: tabs)
 
         self.displayedControllers = controllers
@@ -60,10 +83,26 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
     public func reloadTabs(_ action: (TabType) -> TabType) {
         self.buttonView.updateItems(action: action)
     }
+    
+    private func removeEmptyPlaceholder() {
+        guard let placeholder = self.emptyDataPlaceholder else { return }
+        placeholder.removeFromSuperview()
+    }
+    
+    private func setupEmptyPlaceholder() {
+        guard let placeholder = self.emptyDataPlaceholder else { return }
+        self.view.addSubview(placeholder)
+        placeholder.translatesAutoresizingMaskIntoConstraints = false
+        placeholder.isHidden = true
+        placeholder.topAnchor.constraint(equalTo: self.view.bottomAnchor).activate()
+        placeholder.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).activate()
+        placeholder.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).activate()
+        placeholder.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).activate()
+    }
 
     private func setup() {
         self.view.addSubview(self.buttonView)
-        self.view.addSubview(self.scrollView)
+        self.view.addSubview(self.controllersView)
 
         self.buttonView.delegate = self
         self.buttonView.translatesAutoresizingMaskIntoConstraints = false
@@ -72,13 +111,13 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
         self.buttonView.topAnchor.constraint(equalTo: self.view.topAnchor).activate()
         self.buttonView.heightAnchor.constraint(equalToConstant: self.appearance.tabsHeight).activate()
 
-        self.scrollView.translatesAutoresizingMaskIntoConstraints = false
-        self.scrollView.topAnchor.constraint(equalTo: self.buttonView.bottomAnchor).activate()
-        self.scrollView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).activate()
-        self.scrollView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).activate()
-        self.scrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).activate()
+        self.controllersView.translatesAutoresizingMaskIntoConstraints = false
+        self.controllersView.topAnchor.constraint(equalTo: self.buttonView.bottomAnchor).activate()
+        self.controllersView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).activate()
+        self.controllersView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).activate()
+        self.controllersView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).activate()
     }
-
+    
     private func cleanup() {
         self.displayedControllers.forEach(self.remove)
     }
@@ -98,22 +137,22 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
         self.displayedControllers.forEach {
             $0.willMove(toParent: self)
             self.addChild($0)
-            self.scrollView.addSubview($0.view)
+            self.controllersView.addSubview($0.view)
         }
     }
 
     private func layoutControllers() {
-        self.scrollView.contentSize = CGSize(width: CGFloat(self.displayedControllers.count) * self.scrollView.bounds.size.width,
+        self.controllersView.contentSize = CGSize(width: CGFloat(self.displayedControllers.count) * self.controllersView.bounds.size.width,
                                              height: self.view.frame.height - self.buttonView.frame.height)
 
         self.displayedControllers.enumerated().forEach(self.layoutController)
     }
 
     private func layoutController(index: Int, controller: UIViewController) {
-        controller.view.frame = CGRect(x: CGFloat(index) * self.scrollView.bounds.width,
+        controller.view.frame = CGRect(x: CGFloat(index) * self.controllersView.bounds.width,
                                        y: .zero,
-                                       width: self.scrollView.bounds.width,
-                                       height: self.scrollView.bounds.height)
+                                       width: self.controllersView.bounds.width,
+                                       height: self.controllersView.bounds.height)
     }
 }
 
@@ -129,7 +168,7 @@ extension TabsViewController: TabButtonViewDelegate {
         Delegate.TabType == CellType.Tab
     {
         UIView.animate(withDuration: 0.25) {
-            self.scrollView.setContentOffset(CGPoint(x: CGFloat(indexPath.row) * self.scrollView.bounds.width, y: .zero), animated: false)
+            self.controllersView.setContentOffset(CGPoint(x: CGFloat(indexPath.row) * self.controllersView.bounds.width, y: .zero), animated: false)
         }
     }
 
