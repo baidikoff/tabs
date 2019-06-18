@@ -56,6 +56,10 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
         self.displayedControllers = controllers
         self.setupControllers()
     }
+    
+    public func reloadTabs(_ action: (TabType) -> TabType) {
+        self.buttonView.updateItems(action: action)
+    }
 
     private func setup() {
         self.view.addSubview(self.buttonView)

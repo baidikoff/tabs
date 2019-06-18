@@ -56,20 +56,17 @@ class TabsButtonView<TabType, DelegateType: TabButtonViewDelegate, CellType: Tab
     }
 
     func reload(newItems: [TabType]) {
-        var itemToSelect: TabType?
-        
-        if let selectedIndex = self.selectedIndexPath {
-            itemToSelect = self.items[selectedIndex.row]
-        }
-        
         self.items = newItems
         self.reloadData()
-        
-        if let oldItem = itemToSelect, let indexToSelect = self.items.firstIndex(of: oldItem) {
-            self.selectedIndexPath = nil
-            self.selectItem(atIndexPath: IndexPath(row: indexToSelect, section: 0))
-        } else {
-            self.selectFirstItem()
+        self.selectFirstItem()
+    }
+    
+    func updateItems(action: (TabType) -> TabType) {
+        zip(self.items, self.views).enumerated().forEach { arg in
+            let (index, item, view) = (arg.offset, arg.element.0, arg.element.1)
+            let newItem = action(item)
+            self.items[index] = newItem
+            self.selectedIndexPath?.row == index ? view.setSelected(with: newItem) : view.setUnselected(with: newItem)
         }
     }
 
