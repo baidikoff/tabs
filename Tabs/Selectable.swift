@@ -9,7 +9,6 @@
 import Foundation
 
 public protocol Selectable: Hashable {
-    init()
     var isSelected: Bool { get set }
 }
 
