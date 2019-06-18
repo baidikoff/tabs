@@ -67,9 +67,9 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
     public func reload(tabs: [TabType], controllers: [UIViewController]) {
         self.cleanup()
 
-        self.emptyDataPlaceholder?.isHidden = tabs.isEmpty
-        self.buttonView.isHidden = !tabs.isEmpty
-        self.controllersView.isHidden = !tabs.isEmpty
+        self.emptyDataPlaceholder?.isHidden = !tabs.isEmpty
+        self.buttonView.isHidden = tabs.isEmpty
+        self.controllersView.isHidden = tabs.isEmpty
         
         self.buttonView.reload(newItems: tabs)
 
