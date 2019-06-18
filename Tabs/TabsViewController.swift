@@ -23,15 +23,12 @@ public protocol TabsViewDelegate: class {
 public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsViewDelegate>: UIViewController
     where CellType.Tab == TabType, Delegate.TabType == TabType
 {
-    private weak var delegate: Delegate?
     public var emptyDataPlaceholder: UIView? {
-        willSet {
-            self.removeEmptyPlaceholder()
-        }
-        didSet {
-            self.setupEmptyPlaceholder()
-        }
+        willSet { self.removeEmptyPlaceholder() }
+        didSet { self.setupEmptyPlaceholder() }
     }
+ 
+    private weak var delegate: Delegate?
     
     private let buttonView = TabsButtonView<TabType, TabsViewController, CellType>()
     private lazy var controllersView: UIScrollView = {
