@@ -39,7 +39,7 @@ public protocol TabsViewDelegate: class {
     ) where CellType.Tab == TabType
 }
 
-extension TabsViewDelegate {
+public extension TabsViewDelegate {
     func tabsViewController<CellType: TabItemView, Delegate: TabsViewDelegate>(
         _ controller: TabsViewController<TabType, CellType, Delegate>,
         willRemoveTabWithItem tab: TabType
