@@ -9,17 +9,6 @@
 import Foundation
 import UIKit
 
-public protocol TabsViewDelegate: class {
-    associatedtype TabType: Selectable
-
-    func tabsViewController<CellType: TabItemView, Delegate: TabsViewDelegate>(
-        _ controller: TabsViewController<TabType, CellType, Delegate>,
-        widthForTab tab: TabType
-    )
-        -> CGFloat
-        where CellType.Tab == TabType
-}
-
 public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsViewDelegate>: UIViewController
     where CellType.Tab == TabType, Delegate.TabType == TabType
 {
@@ -164,9 +153,12 @@ extension TabsViewController: TabButtonViewDelegate {
         CellType: TabItemView,
         Delegate.TabType == CellType.Tab
     {
-        UIView.animate(withDuration: 0.25) {
+        self.delegate?.tabsViewController(self, willShowTabWithItem: item)
+        UIView.animate(withDuration: 0.25, animations: {
             self.controllersView.setContentOffset(CGPoint(x: CGFloat(indexPath.row) * self.controllersView.bounds.width, y: .zero), animated: false)
-        }
+        }, completion: { _ in
+            self.delegate?.tabsViewController(self, didShowTabWithItem: item)
+        })
     }
 
     func tabButtonView<Delegate, CellType>(
@@ -187,6 +179,9 @@ extension TabsViewController: TabItemViewDelegate {
     public func removeTabItemView<View>(_ view: View) where View: TabItemView {
         guard let itemToRemoveIndexPath = self.buttonView.indexPath(forView: view) else { return }
         
+        let itemToRemove = self.buttonView.items[itemToRemoveIndexPath.row]
+        self.delegate?.tabsViewController(self, willRemoveTabWithItem: itemToRemove)
+        
         let newSelectedIndex = IndexPath(row: max(min(itemToRemoveIndexPath.row, self.buttonView.items.count - 2), 0), section: 0)
         self.buttonView.removeItem(atIndexPath: itemToRemoveIndexPath, newSelected: newSelectedIndex)
         
@@ -199,5 +194,7 @@ extension TabsViewController: TabItemViewDelegate {
             guard index > startingControllerIndexToLayout else { return }
             self.layoutController(index: index, controller: controller)
         }
+        
+        self.delegate?.tabsViewController(self, didRemoveTabWithItem: itemToRemove)
     }
 }

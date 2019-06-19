@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		370AAEB522BA710100DE044D /* TabsViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 370AAEB422BA710100DE044D /* TabsViewDelegate.swift */; };
 		37A7909D22AFD27700E6E68E /* Tabs.h in Headers */ = {isa = PBXBuildFile; fileRef = 37A7909B22AFD27700E6E68E /* Tabs.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		37A790AA22AFD28400E6E68E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A790A922AFD28400E6E68E /* AppDelegate.swift */; };
 		37A790AC22AFD28400E6E68E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A790AB22AFD28400E6E68E /* ViewController.swift */; };
@@ -23,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		370AAEB422BA710100DE044D /* TabsViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabsViewDelegate.swift; sourceTree = "<group>"; };
 		37A7909822AFD27700E6E68E /* Tabs.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Tabs.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		37A7909B22AFD27700E6E68E /* Tabs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tabs.h; sourceTree = "<group>"; };
 		37A7909C22AFD27700E6E68E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -89,6 +91,7 @@
 				37A790BF22AFD79B00E6E68E /* TabItemView.swift */,
 				37A790C722AFEB9D00E6E68E /* TabsAppearance.swift */,
 				37A790C922B0FDBA00E6E68E /* Selectable.swift */,
+				370AAEB422BA710100DE044D /* TabsViewDelegate.swift */,
 			);
 			path = Tabs;
 			sourceTree = "<group>";
@@ -223,6 +226,7 @@
 				37A790C022AFD79B00E6E68E /* TabItemView.swift in Sources */,
 				37A790BE22AFD37500E6E68E /* Extensions.swift in Sources */,
 				37A790CA22B0FDBA00E6E68E /* Selectable.swift in Sources */,
+				370AAEB522BA710100DE044D /* TabsViewDelegate.swift in Sources */,
 				37A790C822AFEB9D00E6E68E /* TabsAppearance.swift in Sources */,
 				37A790BA22AFD29200E6E68E /* TabsViewController.swift in Sources */,
 			);
