@@ -1,8 +1,8 @@
 //
-//  TabsStyleSettings.swift
+//  TabsAppearance.swift
 //  Tabs
 //
-//  Created by dandy on 6/11/19.
+//  Created by dandy on 6/21/19.
 //  Copyright © 2019 nbaidikoff. All rights reserved.
 //
 

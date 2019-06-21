@@ -12,4 +12,9 @@ extension NSLayoutConstraint {
     func activate() {
         self.isActive = true
     }
+    
+    func activated() -> NSLayoutConstraint {
+        self.activate()
+        return self
+    }
 }

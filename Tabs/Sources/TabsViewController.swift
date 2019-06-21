@@ -2,24 +2,24 @@
 //  TabsViewController.swift
 //  Tabs
 //
-//  Created by dandy on 6/11/19.
+//  Created by dandy on 6/21/19.
 //  Copyright © 2019 nbaidikoff. All rights reserved.
 //
 
 import Foundation
-import UIKit
 
-public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsViewDelegate>: UIViewController
-    where CellType.Tab == TabType, Delegate.TabType == TabType
-{
+public final class TabsViewController<Delegate: TabsDelegate>: UIViewController {
+    public typealias View = Delegate.View
+    public typealias Item = View.Item
+
     public var emptyDataPlaceholder: UIView? {
         willSet { self.removeEmptyPlaceholder() }
         didSet { self.setupEmptyPlaceholder() }
     }
- 
-    private weak var delegate: Delegate?
-    
-    private let buttonView = TabsButtonView<TabType, TabsViewController, CellType>()
+
+    private unowned let delegate: Delegate
+
+    private lazy var buttonView = TabsView(innerDelegate: self)
     private lazy var controllersView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.isScrollEnabled = false
@@ -27,54 +27,54 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
         return scrollView
     }()
 
-    private var appearance: TabsAppearance = TabsAppearance()
+    private var appearance: TabsAppearance
     private var displayedControllers: [UIViewController] = []
     private(set) var selectedController: UIViewController?
-    
-    public init(delegate: Delegate, emptyDataPlaceholder: UIView? = nil) {
+
+    public init(delegate: Delegate, appearance: TabsAppearance, emptyDataPlaceholder: UIView? = nil) {
         self.delegate = delegate
+        self.appearance = appearance
         self.emptyDataPlaceholder = emptyDataPlaceholder
         super.init(nibName: nil, bundle: nil)
+        self.setup()
+        self.buttonView.setup(appearance: appearance)
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         self.layoutControllers()
     }
 
-    public func initialSetup(appearance: TabsAppearance = TabsAppearance()) {
-        self.appearance = appearance
-
-        self.setup()
-        self.buttonView.setup(appearance: appearance)
-    }
-
-    public func reload(tabs: [TabType], controllers: [UIViewController]) {
+    /// MARK: -
+    /// MARK: Public
+    public func reload(tabs: [Item], controllers: [UIViewController]) {
         self.cleanup()
 
         self.emptyDataPlaceholder?.isHidden = !tabs.isEmpty
         self.buttonView.isHidden = tabs.isEmpty
         self.controllersView.isHidden = tabs.isEmpty
-        
+
         self.buttonView.reload(newItems: tabs)
 
         self.displayedControllers = controllers
         self.setupControllers()
     }
-    
-    public func reloadTabs(_ action: (TabType) -> TabType) {
+
+    public func reloadTabs(_ action: (Item) -> Item) {
         self.buttonView.updateItems(action: action)
     }
-    
+
+    /// MARK: -
+    /// MARK: Private
     private func removeEmptyPlaceholder() {
         guard let placeholder = self.emptyDataPlaceholder else { return }
         placeholder.removeFromSuperview()
     }
-    
+
     private func setupEmptyPlaceholder() {
         guard let placeholder = self.emptyDataPlaceholder else { return }
         self.view.addSubview(placeholder)
@@ -90,7 +90,6 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
         self.view.addSubview(self.buttonView)
         self.view.addSubview(self.controllersView)
 
-        self.buttonView.delegate = self
         self.buttonView.translatesAutoresizingMaskIntoConstraints = false
         self.buttonView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).activate()
         self.buttonView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).activate()
@@ -103,7 +102,7 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
         self.controllersView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).activate()
         self.controllersView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).activate()
     }
-    
+
     private func cleanup() {
         self.displayedControllers.forEach(self.remove)
     }
@@ -129,7 +128,7 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
 
     private func layoutControllers() {
         self.controllersView.contentSize = CGSize(width: CGFloat(self.displayedControllers.count) * self.controllersView.bounds.size.width,
-                                             height: self.view.frame.height - self.buttonView.frame.height)
+                                                  height: self.view.frame.height - self.buttonView.frame.height)
 
         self.displayedControllers.enumerated().forEach(self.layoutController)
     }
@@ -142,49 +141,16 @@ public class TabsViewController<TabType, CellType: TabItemView, Delegate: TabsVi
     }
 }
 
-extension TabsViewController: TabButtonViewDelegate {
-    func tabButtonView<Delegate, CellType>(
-        _ tabButtonView: TabsButtonView<TabType, Delegate, CellType>,
-        didSelectItem item: TabType,
-        atIndexPath indexPath: IndexPath
-    )
-        where
-        Delegate: TabButtonViewDelegate,
-        CellType: TabItemView,
-        Delegate.TabType == CellType.Tab
-    {
-        self.delegate?.tabsViewController(self, willShowTabWithItem: item)
-        UIView.animate(withDuration: 0.25, animations: {
-            self.controllersView.setContentOffset(CGPoint(x: CGFloat(indexPath.row) * self.controllersView.bounds.width, y: .zero), animated: false)
-        }, completion: { _ in
-            self.delegate?.tabsViewController(self, didShowTabWithItem: item)
-        })
-    }
+extension TabsViewController: SingleTabViewRemovable {
+    public func removeTabItemView<View>(_ view: View) where View: SingleTabView {
+        guard let view = view as? Delegate.View, let itemToRemoveIndexPath = self.buttonView.indexPath(forView: view) else { return }
 
-    func tabButtonView<Delegate, CellType>(
-        _ tabButtonView: TabsButtonView<TabType, Delegate, CellType>,
-        sizeForItem item: TabType
-    )
-        -> CGSize
-        where
-        Delegate: TabButtonViewDelegate,
-        CellType: TabItemView,
-        Delegate.TabType == CellType.Tab
-    {
-        return CGSize(width: self.delegate?.tabsViewController(self, widthForTab: item) ?? .zero, height: self.appearance.tabsHeight)
-    }
-}
-
-extension TabsViewController: TabItemViewDelegate {
-    public func removeTabItemView<View>(_ view: View) where View: TabItemView {
-        guard let itemToRemoveIndexPath = self.buttonView.indexPath(forView: view) else { return }
-        
         let itemToRemove = self.buttonView.items[itemToRemoveIndexPath.row]
-        self.delegate?.tabsViewController(self, willRemoveTabWithItem: itemToRemove)
-        
+        self.delegate.tabsViewController(self, willRemoveTabWithItem: itemToRemove)
+
         let newSelectedIndex = IndexPath(row: max(min(itemToRemoveIndexPath.row, self.buttonView.items.count - 2), 0), section: 0)
         self.buttonView.removeItem(atIndexPath: itemToRemoveIndexPath, newSelected: newSelectedIndex)
-        
+
         let controller = self.displayedControllers[itemToRemoveIndexPath.row]
         self.displayedControllers.remove(at: itemToRemoveIndexPath.row)
         self.remove(controller: controller)
@@ -194,7 +160,28 @@ extension TabsViewController: TabItemViewDelegate {
             guard index > startingControllerIndexToLayout else { return }
             self.layoutController(index: index, controller: controller)
         }
-        
-        self.delegate?.tabsViewController(self, didRemoveTabWithItem: itemToRemove)
+
+        self.delegate.tabsViewController(self, didRemoveTabWithItem: itemToRemove)
+    }
+}
+
+extension TabsViewController: TabsViewDelegate {
+    
+    typealias DelegateType = Delegate
+    
+    func tabButtonView(_ tabButtonView: TabsView<TabsViewController<Delegate>>, didSelectItem item: Item, atIndexPath indexPath: IndexPath) {
+        UIView.animate(withDuration: 0.25, animations: {
+            self.controllersView.setContentOffset(CGPoint(x: CGFloat(indexPath.row) * self.controllersView.bounds.width, y: .zero), animated: false)
+        }, completion: { _ in
+            self.delegate.tabsViewController(self, didShowTabWithItem: item)
+        })
+    }
+
+    func tabButtonView(_ tabButtonView: TabsView<TabsViewController<Delegate>>, sizeForItem item: Item) -> CGSize {
+        return CGSize(width: self.delegate.tabsViewController(self, widthForItem: item), height: self.appearance.tabsHeight)
+    }
+
+    func tabButtonView(_ tabButtonView: TabsView<TabsViewController<Delegate>>, willDisplayView view: View, withItem item: Item) {
+        self.delegate.tabsViewController(self, willDisplayView: view, withItem: item)
     }
 }

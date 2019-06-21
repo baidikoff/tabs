@@ -32,7 +32,7 @@ class TabItem: Selectable {
 }
 
 class TabView: UIView {
-    weak var delegate: TabItemViewDelegate?
+    weak var removalManager: SingleTabViewRemovable?
 
     private let underlineView = UIView()
     private let textLabel = UILabel()
@@ -79,13 +79,13 @@ class TabView: UIView {
     }
     
     @objc private func onRemove() {
-        self.delegate?.removeTabItemView(self)
+        self.removalManager?.removeTabItemView(self)
     }
 }
 
-extension TabView: TabItemView {
+extension TabView: SingleTabView {
 
-    typealias Tab = TabItem
+    typealias Item = TabItem
     
     func setSelected(with item: TabItem) {
         self.textLabel.text = "\(item.betsCount) BETS"
