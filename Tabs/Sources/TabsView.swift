@@ -102,6 +102,11 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
         }
     }
     
+    func item(for view: View) -> Item? {
+        guard let index = self.views.firstIndex(of: view) else { return nil }
+        return self.items[index]
+    }
+    
     private func addConstraints() {
         self.addSubview(self.scrollView)
         
@@ -206,11 +211,6 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
         UIView.animate(withDuration: 0.25) {
             self.scrollView.layoutIfNeeded()
         }
-    }
-    
-    private func item(for view: View) -> Item? {
-        guard let index = self.views.firstIndex(of: view) else { return nil }
-        return self.items[index]
     }
     
     private func view(forItemAt indexPath: IndexPath) -> View? {

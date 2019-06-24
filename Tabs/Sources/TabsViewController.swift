@@ -67,7 +67,11 @@ public final class TabsViewController<Delegate: TabsDelegate>: UIViewController 
     public func reloadTabs(_ action: (Item) -> Item) {
         self.buttonView.updateItems(action: action)
     }
-
+    
+    public func item(forView view: View) -> Item? {
+        return self.buttonView.item(for: view)
+    }
+    
     /// MARK: -
     /// MARK: Private
     private func removeEmptyPlaceholder() {
