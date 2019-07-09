@@ -12,6 +12,10 @@ public final class TabsViewController<Delegate: TabsDelegate>: UIViewController 
     public typealias View = Delegate.View
     public typealias Item = View.Item
 
+    public var items: [Item] {
+        return self.buttonView.items
+    }
+    
     public var emptyDataPlaceholder: UIView? {
         willSet { self.removeEmptyPlaceholder() }
         didSet { self.setupEmptyPlaceholder() }
