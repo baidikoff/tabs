@@ -28,6 +28,9 @@ final class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.appearance.selectionIndicatorVisible = true
+        self.appearance.selectionIndicatorColor = .white
+        self.appearance.selectionIndicatorHeight = 2.0
         self.appearance.buttonsBackgroundColor = .black
 
         self.addChild(self.tabsViewController)

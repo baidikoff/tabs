@@ -33,6 +33,10 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
     private var appearance: TabsAppearance = TabsAppearance()
     private var selectedIndexPath: IndexPath?
     
+    private var selectionIndicator: UIView?
+    private var selectionIndicatorWidthConstraint: NSLayoutConstraint?
+    private var selectionIndicatorLeadingConstraint: NSLayoutConstraint?
+    
     private unowned let innerDelegate: InnerDelegate
     
     init(innerDelegate: InnerDelegate) {
@@ -48,6 +52,7 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
         self.appearance = appearance
         
         self.addConstraints()
+        self.configureIndicatorIfNeeded()
         self.configureCollectionView()
     }
     
@@ -116,7 +121,22 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
         self.scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: self.appearance.tabsLeftSpacing).activate()
         self.scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -self.appearance.tabsRightSpacing).activate()
         self.scrollView.topAnchor.constraint(equalTo: self.topAnchor).activate()
-        self.scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor).activate()
+        self.scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: self.appearance.selectionIndicatorVisible ? -self.appearance.selectionIndicatorHeight : .zero).activate()
+    }
+    
+    private func configureIndicatorIfNeeded() {
+        guard self.appearance.selectionIndicatorVisible else { return }
+        let indicator = UIView()
+        indicator.backgroundColor = self.appearance.selectionIndicatorColor
+        self.addSubview(indicator)
+        
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.heightAnchor.constraint(equalToConstant: self.appearance.selectionIndicatorHeight).activate()
+        indicator.bottomAnchor.constraint(equalTo: self.bottomAnchor).activate()
+        
+        self.selectionIndicator = indicator
+        self.selectionIndicatorWidthConstraint = indicator.widthAnchor.constraint(equalToConstant: .zero).activated()
+        self.selectionIndicatorLeadingConstraint = indicator.leadingAnchor.constraint(equalTo: self.leadingAnchor).activated()
     }
     
     private func configureCollectionView() {
@@ -137,6 +157,12 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
         return {
             constraint.constant = newSize.width
             item.isSelected ? view.setSelected(with: item) : view.setUnselected(with: item)
+            
+            if let indicator = self.selectionIndicator, let widthConstraint = self.selectionIndicatorWidthConstraint, let leadingConstraint = self.selectionIndicatorLeadingConstraint {
+                widthConstraint.constant = newSize.width
+                leadingConstraint.deactivate()
+                self.selectionIndicatorLeadingConstraint = indicator.leadingAnchor.constraint(equalTo: view.leadingAnchor).activated()
+            }
         }
     }
     

@@ -14,6 +14,9 @@ public class TabsAppearance {
     public var tabsRightSpacing: CGFloat = 8.0
     public var tabsInnerSpacing: CGFloat = 4.0
     public var buttonsBackgroundColor: UIColor = .white
+    public var selectionIndicatorVisible: Bool = false
+    public var selectionIndicatorColor: UIColor = .white
+    public var selectionIndicatorHeight: CGFloat = 1.0
     
     public init() {}
 }

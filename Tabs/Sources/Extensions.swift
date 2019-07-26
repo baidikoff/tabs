@@ -13,6 +13,10 @@ extension NSLayoutConstraint {
         self.isActive = true
     }
     
+    func deactivate() {
+        self.isActive = false
+    }
+    
     func activated() -> NSLayoutConstraint {
         self.activate()
         return self
