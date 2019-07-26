@@ -98,11 +98,12 @@ public final class TabsViewController<Delegate: TabsDelegate>: UIViewController 
         self.view.addSubview(self.buttonView)
         self.view.addSubview(self.controllersView)
 
+        let fullHeight = self.appearance.tabsHeight + (self.appearance.selectionIndicatorVisible ? self.appearance.selectionIndicatorHeight : .zero)
         self.buttonView.translatesAutoresizingMaskIntoConstraints = false
         self.buttonView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).activate()
         self.buttonView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).activate()
         self.buttonView.topAnchor.constraint(equalTo: self.view.topAnchor).activate()
-        self.buttonView.heightAnchor.constraint(equalToConstant: self.appearance.tabsHeight).activate()
+        self.buttonView.heightAnchor.constraint(equalToConstant: fullHeight).activate()
 
         self.controllersView.translatesAutoresizingMaskIntoConstraints = false
         self.controllersView.topAnchor.constraint(equalTo: self.buttonView.bottomAnchor).activate()
