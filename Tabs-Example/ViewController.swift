@@ -59,19 +59,19 @@ extension ViewController: TabsDelegate {
         return ceil(width)
     }
     
-    func tabsViewController(_ controller: TabsViewController<ViewController>, willAppearController: Controller) {
+    func tabsViewController(_ controller: TabsViewController<ViewController>, willAppearController viewController: Controller) {
         print("will appear")
     }
     
-    func tabsViewController(_ controller: TabsViewController<ViewController>, didAppearController: Controller) {
+    func tabsViewController(_ controller: TabsViewController<ViewController>, didAppearController viewController: Controller) {
         print("did appear")
     }
     
-    func tabsViewController(_ controller: TabsViewController<ViewController>, willDisappearController: Controller) {
+    func tabsViewController(_ controller: TabsViewController<ViewController>, willDisappearController viewController: Controller) {
         print("will disappear")
     }
     
-    func tabsViewController(_ controller: TabsViewController<ViewController>, didDisappearController: Controller) {
+    func tabsViewController(_ controller: TabsViewController<ViewController>, didDisappearController viewController: Controller) {
         print("did disappear")
     }
 }
