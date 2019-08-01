@@ -10,6 +10,7 @@ import Foundation
 
 public protocol TabsDelegate: class {
     associatedtype View: SingleTabView
+    associatedtype ContentController: UIViewController
     
     /// Required
     func tabsViewController(_ controller: TabsViewController<Self>, widthForItem item: View.Item) -> CGFloat
@@ -22,6 +23,12 @@ public protocol TabsDelegate: class {
     
     func tabsViewController(_ controller: TabsViewController<Self>, willShowTabWithItem item: View.Item)
     func tabsViewController(_ controller: TabsViewController<Self>, didShowTabWithItem item: View.Item)
+    
+    func tabsViewController(_ controller: TabsViewController<Self>, willAppearController: ContentController)
+    func tabsViewController(_ controller: TabsViewController<Self>, didAppearController: ContentController)
+    
+    func tabsViewController(_ controller: TabsViewController<Self>, willDisappearController: ContentController)
+    func tabsViewController(_ controller: TabsViewController<Self>, didDisappearController: ContentController)
 }
 
 public extension TabsDelegate {
@@ -32,4 +39,10 @@ public extension TabsDelegate {
     
     func tabsViewController(_ controller: TabsViewController<Self>, willShowTabWithItem item: View.Item) {}
     func tabsViewController(_ controller: TabsViewController<Self>, didShowTabWithItem item: View.Item) {}
+    
+    func tabsViewController(_ controller: TabsViewController<Self>, willAppearController: ContentController) {}
+    func tabsViewController(_ controller: TabsViewController<Self>, didAppearController: ContentController) {}
+    
+    func tabsViewController(_ controller: TabsViewController<Self>, willDisappearController: ContentController) {}
+    func tabsViewController(_ controller: TabsViewController<Self>, didDisappearController: ContentController) {}
 }

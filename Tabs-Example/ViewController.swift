@@ -9,7 +9,7 @@
 import Tabs
 import UIKit
 
-extension UIViewController {
+class Controller: UIViewController {
     convenience init(color: UIColor) {
         self.init()
         self.view.backgroundColor = color
@@ -28,9 +28,6 @@ final class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.appearance.selectionIndicatorVisible = true
-        self.appearance.selectionIndicatorColor = .white
-        self.appearance.selectionIndicatorHeight = 2.0
         self.appearance.buttonsBackgroundColor = .black
 
         self.addChild(self.tabsViewController)
@@ -44,13 +41,14 @@ final class ViewController: UIViewController {
         self.tabsViewController.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
 
         let tabs = [TabItem(text: "1"), TabItem(text: "2"), TabItem(text: "3"), TabItem(text: "15"), TabItem(text: "20"), TabItem(text: "21"), TabItem(text: "11"), TabItem(text: "23")]
-        let controllers = [UIViewController(color: .red), UIViewController(color: .blue), UIViewController(color: .brown), UIViewController(color: .green), UIViewController(color: .red), UIViewController(color: .blue), UIViewController(color: .brown), UIViewController(color: .green)]
+        let controllers = [Controller(color: .red), Controller(color: .blue), Controller(color: .brown), Controller(color: .green), Controller(color: .red), Controller(color: .blue), Controller(color: .brown), Controller(color: .green)]
         self.tabsViewController.reload(tabs: tabs, controllers: controllers)
     }
 }
 
 extension ViewController: TabsDelegate {
     typealias View = TabView
+    typealias ContentController = Controller
 
     func tabsViewController(_ controller: TabsViewController<ViewController>, widthForItem item: TabItem) -> CGFloat {
         let string = item.isSelected ? "\(item.betsCount) BETS" : item.betsCount
@@ -61,7 +59,19 @@ extension ViewController: TabsDelegate {
         return ceil(width)
     }
     
-    func tabsViewController(_ controller: TabsViewController<ViewController>, willDisplayView view: TabView, withItem item: TabItem) {
-        print("will display cell for \(item.betsCount)")
+    func tabsViewController(_ controller: TabsViewController<ViewController>, willAppearController: Controller) {
+        print("will appear")
+    }
+    
+    func tabsViewController(_ controller: TabsViewController<ViewController>, didAppearController: Controller) {
+        print("did appear")
+    }
+    
+    func tabsViewController(_ controller: TabsViewController<ViewController>, willDisappearController: Controller) {
+        print("will disappear")
+    }
+    
+    func tabsViewController(_ controller: TabsViewController<ViewController>, didDisappearController: Controller) {
+        print("did disappear")
     }
 }
