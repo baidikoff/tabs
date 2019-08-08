@@ -170,7 +170,7 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
 
         self.selectionIndicator = indicator
         self.selectionIndicatorWidthConstraint = indicator.widthAnchor.constraint(equalToConstant: .zero).activated()
-        self.selectionIndicatorLeadingConstraint = indicator.leadingAnchor.constraint(equalTo: self.leadingAnchor).activated()
+        self.selectionIndicatorLeadingConstraint = indicator.leadingAnchor.constraint(equalTo: self.scrollView.leadingAnchor).activated()
     }
 
     private func configureCollectionView() {
