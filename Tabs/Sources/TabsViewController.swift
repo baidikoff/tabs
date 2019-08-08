@@ -54,9 +54,10 @@ public final class TabsViewController<Delegate: TabsDelegate>: UIViewController 
         self.layoutControllers()
     }
 
-    // MARK: -
-    // MARK: Public
+    /// MARK: -
+    /// MARK: Public
 
+    /// Reloads
     public func reload(tabs: [Item], controllers: [Controller]) {
         self.cleanup()
 
@@ -74,13 +75,77 @@ public final class TabsViewController<Delegate: TabsDelegate>: UIViewController 
         self.buttonView.updateItems(action: action)
     }
 
+    /// Accessors
     public func item(forView view: View) -> Item? {
         return self.buttonView.item(for: view)
     }
+    
+    public func item(forController controller: Controller) -> Item? {
+        guard let index = self.displayedControllers.firstIndex(of: controller) else { return nil }
+        return self.buttonView.items[index]
+    }
+    
+    public func view(forItem item: Item) -> View? {
+        return self.buttonView.view(for: item)
+    }
+    
+    public func view(forController controller: Controller) -> View? {
+        guard let index = self.displayedControllers.firstIndex(of: controller) else { return nil }
+        return self.buttonView.views[index]
+    }
+    
+    public func controller(forItem item: Item) -> Controller? {
+        guard let index = self.buttonView.items.firstIndex(of: item) else { return nil }
+        return self.displayedControllers[index]
+    }
+    
+    public func controller(forView view: View) -> Controller? {
+        guard let index = self.buttonView.views.firstIndex(of: view) else { return nil }
+        return self.displayedControllers[index]
+    }
+    
+    /// Removals
+    public func removeTab(withItem item: Item) {
+        guard let view = self.buttonView.view(for: item) else { return }
+        self.removeTabItemView(view)
+    }
+    
+    public func removeTab(withView view: View) {
+        self.removeTabItemView(view)
+    }
+    
+    public func removeTab(withController controller: Controller) {
+        guard let index = self.displayedControllers.firstIndex(of: controller) else { return }
+        self.removeTabItemView(self.buttonView.views[index])
+    }
+    
+    /// Inserts
+    public func insert(tabWithItem item: Item, controller: Controller) {
+        let insertionIndex = self.displayedControllers.count
+        
+        self.delegate.tabsViewController(self, willAppearController: controller)
+        self.displayedControllers.append(controller)
+        self.add(controller: controller)
+        self.layoutController(index: insertionIndex, controller: controller)
+        self.delegate.tabsViewController(self, didAppearController: controller)
 
-    // MARK: -
-    // MARK: Private
+        self.buttonView.insert(newItem: item)
+    }
+    
+    public func insert(tabWithItem item: Item, controller: Controller, atIndex index: Int) {
+        guard index <= self.displayedControllers.count && index >= .zero else { return }
+        
+        self.delegate.tabsViewController(self, willAppearController: controller)
+        self.displayedControllers.insert(controller, at: index)
+        self.add(controller: controller)
+        self.layoutControllers()
+        self.delegate.tabsViewController(self, didAppearController: controller)
 
+        self.buttonView.insert(newItem: item, atIndex: index)
+    }
+
+    /// MARK: -
+    /// MARK: Private
     private func removeEmptyPlaceholder() {
         guard let placeholder = self.emptyDataPlaceholder else { return }
         placeholder.removeFromSuperview()
@@ -133,16 +198,18 @@ public final class TabsViewController<Delegate: TabsDelegate>: UIViewController 
     }
 
     private func addControllersToViewHierarcy() {
-        self.displayedControllers.forEach {
-            $0.willMove(toParent: self)
-            $0.view.willMove(toSuperview: self.controllersView)
-            
-            self.addChild($0)
-            self.controllersView.addSubview($0.view)
-            
-            $0.view.didMoveToSuperview()
-            $0.didMove(toParent: self)
-        }
+        self.displayedControllers.forEach(self.add)
+    }
+    
+    private func add(controller: Controller) {
+        controller.willMove(toParent: self)
+        controller.view.willMove(toSuperview: self.controllersView)
+        
+        self.addChild(controller)
+        self.controllersView.addSubview(controller.view)
+        
+        controller.view.didMoveToSuperview()
+        controller.didMove(toParent: self)
     }
 
     private func layoutControllers() {
@@ -164,8 +231,6 @@ extension TabsViewController: SingleTabViewRemovable {
     public func removeTabItemView<View>(_ view: View) where View: SingleTabView {
         guard let view = view as? Delegate.View, let itemToRemoveIndexPath = self.buttonView.indexPath(forView: view) else { return }
 
-        // add willDisappear / didDisappear and willAppear / didAppear
-
         let itemToRemove = self.buttonView.items[itemToRemoveIndexPath.row]
         self.delegate.tabsViewController(self, willRemoveTabWithItem: itemToRemove)
 
@@ -173,12 +238,22 @@ extension TabsViewController: SingleTabViewRemovable {
         self.buttonView.removeItem(atIndexPath: itemToRemoveIndexPath, newSelected: newSelectedIndex)
 
         let controller = self.displayedControllers[itemToRemoveIndexPath.row]
+        self.delegate.tabsViewController(self, willDisappearController: controller)
         self.displayedControllers.remove(at: itemToRemoveIndexPath.row)
         self.remove(controller: controller)
-
+        self.delegate.tabsViewController(self, didDisappearController: controller)
+        
         let startingControllerIndexToLayout = itemToRemoveIndexPath.row - 1
+        var didSendAppearMessages = false
         self.displayedControllers.enumerated().forEach { index, controller in
             guard index > startingControllerIndexToLayout else { return }
+            
+            if !didSendAppearMessages {
+                self.delegate.tabsViewController(self, willAppearController: controller)
+                self.delegate.tabsViewController(self, didAppearController: controller)
+                didSendAppearMessages = true
+            }
+            
             self.layoutController(index: index, controller: controller)
         }
 

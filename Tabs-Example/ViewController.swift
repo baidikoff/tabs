@@ -40,9 +40,13 @@ final class ViewController: UIViewController {
         self.tabsViewController.view.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 36.0).isActive = true
         self.tabsViewController.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
 
-        let tabs = [TabItem(text: "1"), TabItem(text: "2"), TabItem(text: "3"), TabItem(text: "15"), TabItem(text: "20"), TabItem(text: "21"), TabItem(text: "11"), TabItem(text: "23")]
-        let controllers = [Controller(color: .red), Controller(color: .blue), Controller(color: .brown), Controller(color: .green), Controller(color: .red), Controller(color: .blue), Controller(color: .brown), Controller(color: .green)]
+        let tabs = [TabItem(text: "1")]
+        let controllers = [Controller(color: .red)]
         self.tabsViewController.reload(tabs: tabs, controllers: controllers)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+            self.tabsViewController.insert(tabWithItem: TabItem(text: "2"), controller: Controller(color: .green))
+        }
     }
 }
 
