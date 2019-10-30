@@ -29,6 +29,9 @@ final class ViewController: UIViewController {
         super.viewDidLoad()
 
         self.appearance.buttonsBackgroundColor = .black
+        self.appearance.selectionIndicatorVisible = true
+        self.appearance.selectionIndicatorHeight = 1.0
+        self.appearance.selectionIndicatorColor = .white
 
         self.addChild(self.tabsViewController)
         self.view.addSubview(self.tabsViewController.view)
@@ -40,13 +43,9 @@ final class ViewController: UIViewController {
         self.tabsViewController.view.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 36.0).isActive = true
         self.tabsViewController.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
 
-        let tabs = [TabItem(text: "1")]
-        let controllers = [Controller(color: .red)]
+        let tabs = [TabItem(text: "1"), TabItem(text: "2"), TabItem(text: "3"), TabItem(text: "4"), TabItem(text: "5"), TabItem(text: "6"), TabItem(text: "7")]
+        let controllers = [Controller(color: .red), Controller(color: .green), Controller(color: .gray), Controller(color: .yellow), Controller(color: .orange), Controller(color: .brown), Controller(color: .cyan)]
         self.tabsViewController.reload(tabs: tabs, controllers: controllers)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
-            self.tabsViewController.insert(tabWithItem: TabItem(text: "2"), controller: Controller(color: .green))
-        }
     }
 }
 

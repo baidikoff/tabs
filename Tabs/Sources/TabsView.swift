@@ -83,6 +83,8 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
             self.views.append(newView)
             self.layout(view: newView, item: newItem)
         }
+        
+        self.moveIndicatorToForward()
     }
     
     func insert(newItem: Item, atIndex index: Int) {
@@ -98,6 +100,8 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
 //            self.views.append(newView)
 //            self.layout(view: newView, item: newItem)
 //        }
+        
+        self.moveIndicatorToForward()
     }
 
     func removeItem(atIndexPath indexPath: IndexPath, newSelected: IndexPath) {
@@ -162,11 +166,13 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
         guard self.appearance.selectionIndicatorVisible else { return }
         let indicator = UIView()
         indicator.backgroundColor = self.appearance.selectionIndicatorColor
-        self.addSubview(indicator)
+        
+        self.scrollView.addSubview(indicator)
+        self.scrollView.bringSubviewToFront(indicator)
 
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.heightAnchor.constraint(equalToConstant: self.appearance.selectionIndicatorHeight).activate()
-        indicator.bottomAnchor.constraint(equalTo: self.bottomAnchor).activate()
+        indicator.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor).activate()
 
         self.selectionIndicator = indicator
         self.selectionIndicatorWidthConstraint = indicator.widthAnchor.constraint(equalToConstant: .zero).activated()
@@ -204,7 +210,8 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
     // MARK: Scroll view operations
 
     private func reloadData() {
-        self.scrollView.subviews.forEach { $0.removeFromSuperview() }
+        self.views.forEach { $0.removeFromSuperview() }
+        
         self.widthConstraints = []
         self.leadingConstraints = []
 
@@ -222,6 +229,8 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
         if let last = self.views.last {
             last.trailingAnchor.constraint(equalTo: self.scrollView.trailingAnchor).activate()
         }
+        
+        self.moveIndicatorToForward()
     }
 
     private func removeItem(at indexPath: IndexPath) {
@@ -248,6 +257,8 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
         UIView.animate(withDuration: 0.25) {
             self.scrollView.layoutIfNeeded()
         }
+        
+        self.moveIndicatorToForward()
     }
 
     private func view(forItemAt indexPath: IndexPath) -> View? {
@@ -287,6 +298,12 @@ class TabsView<InnerDelegate: TabsViewDelegate>: UIView {
 
         self.widthConstraints.append(view.widthAnchor.constraint(equalToConstant: size.width).activated())
         self.leadingConstraints.append(view.leadingAnchor.constraint(equalTo: self.scrollView.leadingAnchor).activated())
+    }
+    
+    private func moveIndicatorToForward() {
+        if let indicator = self.selectionIndicator {
+            self.scrollView.bringSubviewToFront(indicator)
+        }
     }
 
     @objc private func selectView(recogniser: UITapGestureRecognizer) {
