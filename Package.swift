@@ -4,8 +4,8 @@ import PackageDescription
 
 let package = Package(
   name: "Tabs",
-  dependencies: [
-        
+  products: [
+    .library(name: "Tabs", targets: ["Tabs"])
   ],
   targets: [
     .target(
