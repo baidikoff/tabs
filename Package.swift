@@ -10,6 +10,7 @@ let package = Package(
   targets: [
     .target(
         name: "Tabs",
+        path: "./Tabs/Sources"
         dependencies: [])
   ]
 )
