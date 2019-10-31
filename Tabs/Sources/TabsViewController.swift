@@ -13,9 +13,8 @@ public final class TabsViewController<Delegate: TabsDelegate>: UIViewController 
     public typealias View = Delegate.View
     public typealias Item = View.Item
 
-    public var items: [Item] {
-        return self.buttonView.items
-    }
+    public var items: [Item] { self.buttonView.items }
+    public var viewControllers: [Controller] { self.displayedControllers }
 
     public var emptyDataPlaceholder: UIView? {
         willSet { self.removeEmptyPlaceholder() }
@@ -54,8 +53,8 @@ public final class TabsViewController<Delegate: TabsDelegate>: UIViewController 
         self.layoutControllers()
     }
 
-    /// MARK: -
-    /// MARK: Public
+    // MARK: -
+    // MARK: Public
 
     /// Reloads
     public func reload(tabs: [Item], controllers: [Controller]) {
