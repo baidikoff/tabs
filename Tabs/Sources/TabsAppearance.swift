@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 public class TabsAppearance {
     public var tabsHeight: CGFloat = 50.0

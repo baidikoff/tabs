@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 public final class TabsViewController<Delegate: TabsDelegate>: UIViewController {
     public typealias Controller = Delegate.ContentController
